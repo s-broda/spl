@@ -57,6 +57,7 @@ tf.app.flags.DEFINE_integer("test_frequency", 1000, "Runs validation every this 
 # Data
 tf.app.flags.DEFINE_enum("data_type", "rotmat", ["rotmat", "aa", "quat"],
                          "Which data representation: rotmat (rotation matrix), aa (angle axis), quat (quaternion).")
+
 tf.app.flags.DEFINE_boolean("use_h36m", False, "Use H36M for training and validation.")
 tf.app.flags.DEFINE_boolean("no_normalization", False, "If set, do not use zero-mean unit-variance normalization.")
 tf.app.flags.DEFINE_integer("source_seq_len", 120, "Number of frames to feed into the encoder.")
@@ -93,6 +94,9 @@ tf.app.flags.DEFINE_integer("output_hidden_size", 64, "Size of hidden layers in 
 tf.app.flags.DEFINE_enum("architecture", "tied", ["tied", "basic"], "If tied, encoder and decoder use the same cell.")
 tf.app.flags.DEFINE_enum("autoregressive_input", "sampling_based", ["sampling_based", "supervised"],
                          "If sampling_based, decoder is trained with its predictions. More robust.")
+tf.app.flags.DEFINE_enum("decoder_init_mode", "random", ["random", "zeros"],
+                         "Whether to initialize the linear layer in the decoder randomly or with zeros")
+
 
 args = tf.app.flags.FLAGS
 

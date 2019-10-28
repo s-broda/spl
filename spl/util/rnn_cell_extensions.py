@@ -70,7 +70,7 @@ class ResidualWrapper(RNNCell):
 class LinearSpaceDecoderWrapper(RNNCell):
     """Operator adding a linear encoder to an RNN cell"""
 
-    def __init__(self, cell, output_size):
+    def __init__(self, cell, output_size, decoder_init_mode):
         """Create a cell with with a linear encoder in space.
 
         Args:
@@ -86,6 +86,7 @@ class LinearSpaceDecoderWrapper(RNNCell):
 
         print('output_size = {0}'.format(output_size))
         print(' state_size = {0}'.format(self._cell.state_size))
+        print('Weight initialisation of decoder = {}'.format(decoder_init_mode))
 
         # Tuple if multi-rnn
         if isinstance(self._cell.state_size, tuple):
@@ -101,13 +102,26 @@ class LinearSpaceDecoderWrapper(RNNCell):
             # Fine if not multi-rnn
             insize = self._cell.state_size
 
-        self.w_out = tf.get_variable("proj_w_out",
-                                     [insize, output_size],
-                                     dtype=tf.float32,
-                                     initializer=tf.random_uniform_initializer(minval=-0.04, maxval=0.04))
-        self.b_out = tf.get_variable("proj_b_out", [output_size],
-                                     dtype=tf.float32,
-                                     initializer=tf.random_uniform_initializer(minval=-0.04, maxval=0.04))
+        if decoder_init_mode == "zeros":
+            self.w_out = tf.get_variable("proj_w_out",
+                                   [insize, output_size],
+                                   dtype=tf.float32,
+                                   initializer=tf.zeros_initializer())
+            self.b_out = tf.get_variable("proj_b_out", [output_size],
+                                   dtype=tf.float32,
+                                   initializer=tf.zeros_initializer())
+
+        elif decoder_init_mode == "random":
+            self.w_out = tf.get_variable("proj_w_out",
+                                   [insize, output_size],
+                                   dtype=tf.float32,
+                                   initializer=tf.random_uniform_initializer(minval=-0.04, maxval=0.04))
+            self.b_out = tf.get_variable("proj_b_out", [output_size],
+                                   dtype=tf.float32,
+                                   initializer=tf.random_uniform_initializer(minval=-0.04, maxval=0.04))
+        else:
+            print('Decoder weight initialisation mode {} is not implemented.'.format(decoder_init_mode))
+            NotImplementedError()
 
         self.linear_output_size = output_size
 

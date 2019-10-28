@@ -318,6 +318,7 @@ class BaseModel(object):
             config['residual_velocity'] = args.residual_velocity
             config['loss_type'] = args.loss_type
             config['joint_prediction_layer'] = args.joint_prediction_layer
+            config['decoder_init_mode'] = args.decoder_init_mode
         else:
             config = from_config
 

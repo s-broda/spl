@@ -35,6 +35,7 @@ class Seq2SeqModel(BaseModel):
         self.input_layer_size = self.config.get("input_hidden_layers", None)
         self.architecture = self.config["architecture"]
         self.autoregressive_input = config["autoregressive_input"]  # sampling_based or supervised
+        self.decoder_init_mode = config["decoder_init_mode"]
         self.states = None
         
         if self.reuse is False:
@@ -80,7 +81,7 @@ class Seq2SeqModel(BaseModel):
         with tf.variable_scope("seq2seq", reuse=self.reuse):
             # === Add space decoder ===
             if self.joint_prediction_layer == "plain":
-                cell = rnn_cell_extensions.LinearSpaceDecoderWrapper(cell, self.input_size)
+                cell = rnn_cell_extensions.LinearSpaceDecoderWrapper(cell, self.input_size, self.decoder_init_mode)
             else:
                 spl_sparse = True if self.joint_prediction_layer == "spl_sparse" else False
                 sp_layer = SPL(hidden_layers=self.config["output_hidden_layers"],
