@@ -81,7 +81,7 @@ tf.app.flags.DEFINE_enum("cell_type", "lstm", ["lstm", "gru"], "RNN cell type: g
 tf.app.flags.DEFINE_integer("cell_size", 1024, "RNN cell size.")
 tf.app.flags.DEFINE_integer("cell_layers", 1, "Number of cells in the RNN model.")
 tf.app.flags.DEFINE_boolean("residual_velocity", True, "Add a residual connection that effectively models velocities.")
-tf.app.flags.DEFINE_enum("loss_type", "joint_sum", ["joint_sum", "all_mean"], "Joint-wise or vanilla mean loss.")
+tf.app.flags.DEFINE_enum("loss_type", "joint_sum", ["joint_sum", "all_mean", "geo"], "Joint-wise or vanilla mean loss.")
 tf.app.flags.DEFINE_enum("joint_prediction_layer", "spl", ["spl", "spl_sparse", "plain"],
                          "Whether to use structured prediction layer (sparse or dense) "
                          "or a standard dense layer to make predictions.")

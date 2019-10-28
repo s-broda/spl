@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 import quaternion
 import cv2
-
+import tensorflow as tf
 
 def rad2deg(v):
     """Convert from radians to degrees."""
@@ -280,3 +280,30 @@ def local_rot_to_global(joint_angles, parents, rep="rotmat", left_mult=False):
             rm = parent_rot if left_mult else local_rot
             out[..., j, :, :] = np.matmul(lm, rm)
     return out
+
+def to_rotmat(inputs):
+    """
+    Convert to rotation matrix format.
+    """
+    shape = tf.shape(inputs) # 16, 143, 45
+    rvecs = tf.reshape(inputs, (-1, 3)) # 34320, 3
+    thetas = tf.norm(rvecs, axis=1, keepdims=True) # 34320, 3
+    is_zero = tf.equal(tf.squeeze(thetas), 0.0)
+    u = rvecs / thetas # 34320, 3
+        
+    # Each K is the cross product matrix of unit axis vectors
+    # pyformat: disable
+    zero = tf.zeros_like(rvecs[:, 0])  # for broadcasting
+    Ks_1 = tf.stack([  zero   , -u[:, 2],  u[:, 1] ], axis=1)  # row 1
+    Ks_2 = tf.stack([  u[:, 2],  zero   , -u[:, 0] ], axis=1)  # row 2
+    Ks_3 = tf.stack([ -u[:, 1],  u[:, 0],  zero    ], axis=1)  # row 3
+    # pyformat: enable
+    
+    Ks = tf.stack([Ks_1, Ks_2, Ks_3], axis=1)                  # stack rows
+    Rs = tf.eye(3) + \
+         tf.sin(thetas)[..., tf.newaxis] * Ks + \
+         (1 - tf.cos(thetas)[..., tf.newaxis]) * tf.matmul(Ks, Ks)
+    # Avoid returning NaNs where division by zero happened
+    eyes = tf.zeros_like(Rs) + tf.eye(3)
+    return tf.reshape(tf.where(is_zero,
+                               eyes, Rs), (shape[0], shape[1], shape[2]*3))

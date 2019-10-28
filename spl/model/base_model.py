@@ -53,8 +53,8 @@ import time
 import tensorflow as tf
 from common.constants import Constants as C
 from spl.model.spl import SPL
-
-
+import numpy as np
+from common.conversions import to_rotmat
 class BaseModel(object):
     def __init__(self, config, data_pl, mode, reuse, **kwargs):
         self.config = config
@@ -169,6 +169,25 @@ class BaseModel(object):
                 per_joint_loss = tf.reduce_sum(per_joint_loss, axis=-1)
                 per_joint_loss = tf.reduce_mean(per_joint_loss)
                 loss_ = per_joint_loss
+            elif self.loss_type == C.LOSS_POSE_GEO:
+                if self.use_aa:
+                     eps = np.finfo(np.float32).eps
+                     R1 = tf.reshape(to_rotmat(predicted_pose), [-1, 3, 3])
+                     R2 = tf.reshape(to_rotmat(target_pose), [-1, 3, 3])
+                     RR = tf.matmul(R1, R2, transpose_a=True)
+                     tr = tf.trace(RR)
+                     d = tf.acos(tf.clip_by_value((tr-1)/2, np.float32(-1.0+eps), np.float32(1.0-eps)))
+                     loss_ = tf.reduce_mean(d)
+                elif self.use_rotmat:
+                     eps = np.finfo(np.float32).eps
+                     R1 = tf.reshape(predicted_pose, [-1, 3, 3])
+                     R2 = tf.reshape(target_pose, [-1, 3, 3])
+                     RR = tf.matmul(R1, R2, transpose_a=True)
+                     tr = tf.trace(RR)
+                     d = tf.acos(tf.clip_by_value((tr-1)/2, np.float32(-1.0+eps), np.float32(1.0-eps)))
+                     loss_ = tf.reduce_mean(d)
+                else:
+                    raise Exception("Geodesic loss not defined for this input format.")
             else:
                 raise Exception("Unknown loss.")
             return loss_
