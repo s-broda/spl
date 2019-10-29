@@ -45,6 +45,7 @@ class Constants(object):
 
     # Optimization
     OPTIMIZER_ADAM = "adam"
+    OPTIMIZER_NADAM = "nadam"
     OPTIMIZER_SGD = "sgd"
 
     # RNN cells

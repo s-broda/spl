@@ -238,9 +238,11 @@ class BaseModel(object):
                                                    decay_rate=self.config.get('learning_rate_decay_rate', 0.98),
                                                    staircase=True)
         if self.config["optimizer"] == C.OPTIMIZER_ADAM:
-            optimizer = tf.train.AdamOptimizer(learning_rate)
+            optimizer = tf.train.AdamOptimizer(learning_rate, epsilon=self.config["epsilon"])
         elif self.config["optimizer"] == C.OPTIMIZER_SGD:
             optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+        elif self.config["optimizer"] == C.OPTIMIZER_NADAM:
+            optimizer = tf.contrib.opt.NadamOptimizer(learning_rate, epsilon=self.config["epsilon"])
         else:
             raise Exception("Optimization not found.")
 
@@ -303,6 +305,7 @@ class BaseModel(object):
             config['learning_rate_decay_rate'] = args.learning_rate_decay_rate
             config['grad_clip_norm'] = args.grad_clip_norm
             config['optimizer'] = args.optimizer
+            config['epsilon'] = args.epsilon
     
             config['input_hidden_layers'] = args.input_hidden_layers
             config['input_hidden_size'] = args.input_hidden_size

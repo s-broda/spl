@@ -69,9 +69,10 @@ tf.app.flags.DEFINE_boolean("exhaustive_validation", False, "Use entire validati
 tf.app.flags.DEFINE_integer("early_stopping_tolerance", 20, "# of waiting steps until the validation loss improves.")
 # Optimization.
 tf.app.flags.DEFINE_float("learning_rate", .001, "Learning rate.")
+tf.app.flags.DEFINE_float("epsilon", 1e-8, "Epsilon parameter for ADAM/NADAM.")
 tf.app.flags.DEFINE_float("learning_rate_decay_rate", 0.98, "Learning rate multiplier. See tf.exponential_decay.")
 tf.app.flags.DEFINE_integer("learning_rate_decay_steps", 1000, "Decay steps. See tf.exponential_decay.")
-tf.app.flags.DEFINE_enum("optimizer", "adam", ["adam", "sgd"], "Optimization function type.")
+tf.app.flags.DEFINE_enum("optimizer", "adam", ["adam", "sgd", "nadam"], "Optimization function type.")
 tf.app.flags.DEFINE_float("grad_clip_norm", 1.0, "Clip gradients to this norm. If 0, gradient clipping is not applied.")
 # Model
 tf.app.flags.DEFINE_enum("model_type", "rnn", ["rnn", "seq2seq", "zero_velocity"], "Which model to use.")
